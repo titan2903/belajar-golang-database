@@ -2,26 +2,26 @@ package belajargolangdatabase
 
 import (
 	"database/sql"
-	"fmt"
-	"testing"
-
-	_ "github.com/go-sql-driver/mysql" //! ada underscore harapannya memanggil method initnya
+	"time"
 )
 
-/*
-! PASTIKAN HARUS MENGIMPORT DRIVER
-*/
 
-func TestDatabaseOpenConnection(t *testing.T) {
+func GetConnection() *sql.DB {
 	db, err := sql.Open("mysql", "root:user1234@tcp(localhost:3306)/belajar_golang_database?parseTime=true")
 
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Success Connected", db)
-	defer db.Close()
+	
+	db.SetMaxIdleConns(10)
+	db.SetMaxOpenConns(100)
+	db.SetConnMaxIdleTime(5 * time.Minute)
+	db.SetConnMaxLifetime(60 * time.Minute)
+
+	return db
 }
 
 /*
+! tidak perlu lagi open connection baru di tiap unit test
 ? parseTime=true, agar otomatis melakukan conversi dari []uint8 ke time
 */
